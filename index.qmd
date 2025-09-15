@@ -1,0 +1,372 @@
+---
+title: "⚽ NK B16 Viking Sounders"
+subtitle: "2025-2026 Season Statistics Dashboard"
+format: 
+  html:
+    theme: lumen
+    toc: false
+    page-layout: full
+    html-table-processing: none
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+```{css}
+#| echo: false
+
+/* Clean professional styling that works with lumen theme */
+.season-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 15px;
+  margin: 20px 0;
+}
+
+.stat-box {
+  text-align: center;
+  padding: 20px;
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  transition: box-shadow 0.2s ease;
+}
+
+.stat-box:hover {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.stat-number {
+  font-size: 2em;
+  font-weight: bold;
+  color: #495057;
+  display: block;
+  margin-bottom: 5px;
+}
+
+.stat-label {
+  font-size: 0.9em;
+  color: #6c757d;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.performers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 15px;
+  margin: 20px 0;
+}
+
+.performer-box {
+  text-align: center;
+  padding: 15px;
+  background: #e7f3ff;
+  border: 1px solid #b3d7ff;
+  border-radius: 8px;
+}
+
+.performer-title {
+  font-weight: bold;
+  color: #0056b3;
+  margin-bottom: 5px;
+  font-size: 0.9em;
+}
+
+.performer-name {
+  font-size: 1.1em;
+  margin-bottom: 3px;
+}
+
+.performer-stat {
+  font-size: 1.3em;
+  font-weight: bold;
+  color: #0056b3;
+}
+
+/* Section styling */
+.priority-section {
+  border-left: 4px solid #007bff;
+  padding-left: 15px;
+  margin-bottom: 30px;
+}
+
+.secondary-section {
+  border-left: 4px solid #ffc107;
+  padding-left: 15px;
+  margin-bottom: 30px;
+}
+
+/* Clean table styling */
+.custom-table {
+  width: 100%;
+  margin-top: 15px;
+}
+
+.custom-table th {
+  background-color: #f8f9fa;
+  border-bottom: 2px solid #dee2e6;
+  font-weight: 600;
+  padding: 12px;
+}
+
+.custom-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.custom-table tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+/* Update notice */
+.update-info {
+  text-align: center;
+  margin: 20px 0;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  color: #6c757d;
+  font-size: 0.9em;
+}
+
+.update-info a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.update-info a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+  .season-summary, .performers-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+```
+
+```{r setup}
+#| include: false
+
+# Load required libraries
+library(readr)
+library(dplyr)
+library(stringr)
+library(knitr)
+library(kableExtra)
+
+# URL to your published Google Sheet CSV
+csv_url <- "https://docs.google.com/spreadsheets/d/e/2PACX-1vTXyx3iRXjeOoTxtgtJxOqrfYwcyuvXO8Cxg1hyjzwHISViC-V6X3T45tnEvID_D8aXgQW8ucbK-l5I/pub?gid=0&single=true&output=csv"
+
+# Function to safely read CSV with error handling
+read_team_data <- function() {
+  tryCatch({
+    data <- read_csv(csv_url, show_col_types = FALSE)
+    
+    # Clean and process data
+    data <- data %>%
+      filter(!is.na(Date) & Date != "" & !is.na(Player) & Player != "") %>%
+      filter(Type == "Fall Season")%>%
+      mutate(
+        # Convert Date column to proper Date type
+        Date = as.Date(Date, format = "%m/%d/%y"),
+        Goals = as.numeric(Goals),
+        Assists = as.numeric(Assists), 
+        Shots = as.numeric(Shots),
+        Saves = as.numeric(Saves),
+        Final_Score_Us = as.numeric(Final_Score_Us),
+        Final_Score_Them = as.numeric(Final_Score_Them)
+      ) %>%
+      replace(is.na(.), 0)
+    
+    return(data)
+  }, error = function(e) {
+    warning("Could not load live data from Google Sheets: ", e$message)
+    return(NULL)
+  })
+}
+
+# Load the data
+team_data <- read_team_data()
+
+# Stop if data loading fails
+if (is.null(team_data)) {
+  stop("Could not load data from Google Sheets. Please check the CSV URL and internet connection.")
+}
+```
+
+```{r data-processing}
+#| include: false
+
+# Process games data
+games_summary <- team_data %>%
+  group_by(Date, Opponent, Type, Final_Score_Us, Final_Score_Them) %>%
+  summarise(.groups = 'drop') %>%
+  arrange(desc(Date)) %>%
+  mutate(
+    Result = case_when(
+      Final_Score_Us > Final_Score_Them ~ "Win",
+      Final_Score_Us < Final_Score_Them ~ "Loss", 
+      TRUE ~ "Tie"
+    ),
+    Season_Type = case_when(
+      str_detect(Type, "Fall Season") ~ "Regular Season",
+      TRUE ~ "Tournament"
+    )
+  )
+
+# Separate Fall Season and Tournament games
+fall_season_games <- games_summary %>% 
+  filter(str_detect(Type, "Fall Season"))
+
+tournament_games <- games_summary %>% 
+  filter(!str_detect(Type, "Fall Season"))
+
+# Process player statistics
+player_stats <- team_data %>%
+  group_by(Jersey_Number, Player) %>%
+  summarise(
+    Goals = sum(Goals, na.rm = TRUE),
+    Assists = sum(Assists, na.rm = TRUE),
+    Shots = sum(Shots, na.rm = TRUE),
+    Saves = sum(Saves, na.rm = TRUE),
+    .groups = 'drop'
+  ) %>%
+  arrange(desc(Goals), desc(Assists), desc(Saves))
+
+# Calculate statistics
+fall_games_count <- nrow(fall_season_games)
+fall_wins <- sum(fall_season_games$Result == "Win")
+fall_goals <- sum(fall_season_games$Final_Score_Us)
+fall_goals_against <- sum(fall_season_games$Final_Score_Them)
+
+total_games <- nrow(games_summary)
+total_wins <- sum(games_summary$Result == "Win")
+total_goals <- sum(games_summary$Final_Score_Us)
+total_goals_against <- sum(games_summary$Final_Score_Them)
+
+# Top performers
+top_scorer <- player_stats %>% 
+  filter(Goals == max(Goals)) %>% 
+  slice(1)
+
+top_assists <- player_stats %>% 
+  filter(Assists == max(Assists)) %>% 
+  slice(1)
+
+top_saves <- player_stats %>% 
+  filter(Saves == max(Saves)) %>% 
+  slice(1)
+```
+
+::: {.update-info}
+[League Standings](https://northpugetsoundleague.demosphere-secure.com/_element_display/#%2F74274%2Fschedules%2FFall2025%2F115239401.html%3Frnd%3D1757902954884) | 
+[Team Discussion Forum](https://community.nkb16.org) | [Full Stats Sheet (including tournaments)](https://docs.google.com/spreadsheets/d/1dqo2JAqRDvqtftlotC-uywJQRYlk--Yr3Azm6ZctpHQ/edit?usp=sharing)
+
+:::
+
+## 🏆 Fall Season Overview
+
+::: {.season-summary}
+::: {.stat-box}
+::: {.stat-number}
+`r fall_games_count`
+:::
+::: {.stat-label}
+Games
+:::
+:::
+
+::: {.stat-box}
+::: {.stat-number}
+`r fall_wins`
+:::
+::: {.stat-label}
+Wins
+:::
+:::
+
+::: {.stat-box}
+::: {.stat-number}
+`r fall_goals`
+:::
+::: {.stat-label}
+Goals
+:::
+:::
+
+::: {.stat-box}
+::: {.stat-number}
+`r fall_goals_against`
+:::
+::: {.stat-label}
+Goals Against
+:::
+:::
+:::
+
+
+## 📅 Fall Season Games
+```{r fall-season-table}
+#| echo: false
+
+if (nrow(fall_season_games) > 0) {
+  # Clean fall season table without any HTML
+  clean_fall_table <- fall_season_games %>%
+    mutate(
+      Score = paste(Final_Score_Us, "-", Final_Score_Them),
+      # Create fresh Result from scores to avoid any HTML issues
+      Clean_Result = case_when(
+        Final_Score_Us > Final_Score_Them ~ "Win",
+        Final_Score_Us < Final_Score_Them ~ "Loss",
+        TRUE ~ "Tie"
+      )
+    ) %>%
+    select(Date, Opponent, Clean_Result, Score)
+  
+  kable(clean_fall_table, col.names = c("Date", "Opponent", "Result", "Score")) %>%
+    kable_styling(bootstrap_options = c("hover", "striped")) %>%
+    column_spec(3, 
+      background = case_when(
+        clean_fall_table$Clean_Result == "Win" ~ "#d4edda",
+        clean_fall_table$Clean_Result == "Loss" ~ "#f8d7da",
+        TRUE ~ "#fff3cd"
+      ),
+      color = case_when(
+        clean_fall_table$Clean_Result == "Win" ~ "#155724",
+        clean_fall_table$Clean_Result == "Loss" ~ "#721c24",
+        TRUE ~ "#856404"
+      ),
+      bold = TRUE)
+} else {
+  cat("*No Fall Season games recorded yet.*")
+}
+```
+
+## 👥 Player Statistics
+
+```{r players-table}
+#| echo: false
+
+player_stats %>%
+  kable(
+    col.names = c("#", "Player", "Goals", "Assists", "Shots", "Saves"),
+    table.attr = "class='table table-hover custom-table'",
+    escape = FALSE
+  ) %>%
+  kable_styling(bootstrap_options = "hover") %>%
+  column_spec(3, bold = ifelse(player_stats$Goals > 2, TRUE, FALSE)) %>%
+  column_spec(4, bold = ifelse(player_stats$Assists > 1, TRUE, FALSE)) %>%
+  column_spec(6, bold = ifelse(player_stats$Saves > 10, TRUE, FALSE))
+```
+
+```{r data-source-note}
+#| echo: false
+#| results: asis
+
+if (is.null(read_team_data())) {
+  cat('<div style="background: #f8d7da; color: #721c24; padding: 15px; border-radius: 8px; margin: 20px 0; border: 1px solid #f1aeb5; text-align: center;"><strong>📋 Using Sample Data</strong> - Could not connect to live Google Sheet. <a href="https://docs.google.com/spreadsheets/d/1dqo2JAqRDvqtftlotC-uywJQRYlk--Yr3Azm6ZctpHQ/edit" target="_blank">View Live Sheet</a></div>')
+}
+```
