@@ -1,0 +1,59 @@
+name: Render and Publish
+
+# Run this workflow when changes are pushed to main branch
+on:
+  push:
+    branches: [main, master]
+  # Also allow manual triggering
+  workflow_dispatch:
+  # Run daily at 8 AM to get fresh data from Google Sheets
+  schedule:
+    - cron: '0 8 * * *'
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+      
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        
+      - name: Set up Quarto
+        uses: quarto-dev/quarto-actions/setup@v2
+        with:
+          tinytex: false
+          
+      - name: Set up R
+        uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+          
+      - name: Install R Dependencies
+        uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          packages: |
+            any::readr
+            any::dplyr
+            any::stringr
+            any::knitr
+            any::kableExtra
+            
+      - name: Render Quarto Project
+        uses: quarto-dev/quarto-actions/render@v2
+        
+      - name: Setup Pages
+        uses: actions/configure-pages@v3
+        
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v2
+        with:
+          path: ./docs
+          
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2
