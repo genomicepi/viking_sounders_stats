@@ -1,12 +1,9 @@
 name: Render and Publish
 
-# Run this workflow when changes are pushed to main branch
 on:
   push:
     branches: [main, master]
-  # Also allow manual triggering
   workflow_dispatch:
-  # Run daily at 8 AM to get fresh data from Google Sheets
   schedule:
     - cron: '0 8 * * *'
 
@@ -47,13 +44,11 @@ jobs:
         uses: quarto-dev/quarto-actions/render@v2
         
       - name: Setup Pages
-        uses: actions/configure-pages@v3
+        uses: actions/configure-pages@v4
         
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v2
+        uses: actions/upload-pages-artifact@v3
         with:
           path: ./docs
           
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v2
+      - name: Deplo
