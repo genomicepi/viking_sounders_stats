@@ -1,0 +1,14 @@
+project:
+  type: website
+  output-dir: docs
+
+website:
+  title: "NK B16 Viking Sounders"
+  description: "Team Statistics Dashboard"
+  
+format:
+  html:
+    theme: lumen
+    toc: false
+    page-layout: full
+    html-table-processing: none
