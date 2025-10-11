@@ -35,6 +35,8 @@ ul.task-list li input[type="checkbox"] {
 <link href="index_files/libs/bootstrap/bootstrap-0d751c2012e0f243cb75c41679ee8456.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script src="index_files/libs/kePrint-0.0.1/kePrint.js"></script>
 <link href="index_files/libs/lightable-0.0.1/lightable.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 
 
 </head>
@@ -171,6 +173,108 @@ ul.task-list li input[type="checkbox"] {
   background-color: #f8f9fa;
 }
 
+/* Clickable game rows */
+.game-row {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.game-row:hover {
+  background-color: #e9ecef !important;
+}
+
+/* Game detail modal styling */
+.game-stats-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  margin: 20px 0;
+}
+
+.game-stat-box {
+  text-align: center;
+  padding: 15px;
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+}
+
+.game-stat-number {
+  font-size: 1.8em;
+  font-weight: bold;
+  color: #495057;
+  display: block;
+}
+
+.game-stat-label {
+  font-size: 0.85em;
+  color: #6c757d;
+  text-transform: uppercase;
+}
+
+/* Custom modal styling */
+.custom-modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 9998;
+  overflow-y: auto;
+}
+
+.custom-modal-overlay.active {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+.custom-modal-content {
+  background: white;
+  border-radius: 8px;
+  max-width: 900px;
+  width: 100%;
+  position: relative;
+  z-index: 9999;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  margin: auto;
+}
+
+.custom-modal-header {
+  padding: 20px;
+  border-bottom: 1px solid #dee2e6;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.custom-modal-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+}
+
+.custom-modal-close:hover {
+  background: #f8f9fa;
+}
+
+.custom-modal-body {
+  padding: 20px;
+  max-height: calc(90vh - 80px);
+  overflow-y: auto;
+}
+
 /* Update notice */
 .update-info {
   text-align: center;
@@ -195,6 +299,10 @@ ul.task-list li input[type="checkbox"] {
   .season-summary, .performers-grid {
     grid-template-columns: 1fr 1fr;
   }
+  
+  .game-stats-summary {
+    grid-template-columns: 1fr;
+  }
 }
 </style>
 </div>
@@ -206,7 +314,7 @@ ul.task-list li input[type="checkbox"] {
 <div class="season-summary">
 <div class="stat-box">
 <div class="stat-number">
-<p>2</p>
+<p>6</p>
 </div>
 <div class="stat-label">
 <p>Games</p>
@@ -214,7 +322,7 @@ ul.task-list li input[type="checkbox"] {
 </div>
 <div class="stat-box">
 <div class="stat-number">
-<p>2</p>
+<p>5</p>
 </div>
 <div class="stat-label">
 <p>Wins</p>
@@ -222,7 +330,7 @@ ul.task-list li input[type="checkbox"] {
 </div>
 <div class="stat-box">
 <div class="stat-number">
-<p>7</p>
+<p>18</p>
 </div>
 <div class="stat-label">
 <p>Goals</p>
@@ -230,7 +338,7 @@ ul.task-list li input[type="checkbox"] {
 </div>
 <div class="stat-box">
 <div class="stat-number">
-<p>1</p>
+<p>5</p>
 </div>
 <div class="stat-label">
 <p>Goals Against</p>
@@ -240,6 +348,9 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="fall-season-games" class="level2">
 <h2 class="anchored" data-anchor-id="fall-season-games">📅 Fall Season Games</h2>
+<p style="text-align: center; color: #6c757d; font-size: 0.9em; margin-bottom: 10px;">
+<em>Click on any game to view detailed stats</em>
+</p>
 <div class="cell">
 <div class="cell-output-display">
 <table class="table table-hover table-striped" style="margin-left: auto; margin-right: auto;">
@@ -252,6 +363,30 @@ ul.task-list li input[type="checkbox"] {
   </tr>
  </thead>
 <tbody>
+  <tr>
+   <td style="text-align:left;"> 2025-10-11 </td>
+   <td style="text-align:left;"> BIFC White </td>
+   <td style="text-align:left;font-weight: bold;color: rgba(21, 87, 36, 255) !important;background-color: rgba(212, 237, 218, 255) !important;"> Win </td>
+   <td style="text-align:left;"> 1 - 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 2025-10-04 </td>
+   <td style="text-align:left;"> BIFC Red </td>
+   <td style="text-align:left;font-weight: bold;color: rgba(133, 100, 4, 255) !important;background-color: rgba(255, 243, 205, 255) !important;"> Tie </td>
+   <td style="text-align:left;"> 1 - 1 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 2025-09-27 </td>
+   <td style="text-align:left;"> SK United </td>
+   <td style="text-align:left;font-weight: bold;color: rgba(21, 87, 36, 255) !important;background-color: rgba(212, 237, 218, 255) !important;"> Win </td>
+   <td style="text-align:left;"> 4 - 1 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> 2025-09-20 </td>
+   <td style="text-align:left;"> BIFC Black </td>
+   <td style="text-align:left;font-weight: bold;color: rgba(21, 87, 36, 255) !important;background-color: rgba(212, 237, 218, 255) !important;"> Win </td>
+   <td style="text-align:left;"> 5 - 2 </td>
+  </tr>
   <tr>
    <td style="text-align:left;"> 2025-09-13 </td>
    <td style="text-align:left;"> BIFC Grey </td>
@@ -268,6 +403,708 @@ ul.task-list li input[type="checkbox"] {
 </table>
 
 </div>
+</div>
+<script type="text/javascript">const gameDetailsData =  [
+  {
+    "gameId": 1,
+    "date": "2025-10-11",
+    "opponent": "BIFC White",
+    "score": "1 - 0",
+    "result": "Win",
+    "teamGoals": 1,
+    "teamShots": 33,
+    "teamSaves": 8,
+    "players": [
+      {
+        "Jersey_Number": 39,
+        "Player": "C.W",
+        "Goals": 1,
+        "Assists": 0,
+        "Shots": 3,
+        "Saves": 0
+      },
+      {
+        "Jersey_Number": 34,
+        "Player": "E.L",
+        "Goals": 0,
+        "Assists": 1,
+        "Shots": 5,
+        "Saves": 0
+      },
+      {
+        "Jersey_Number": 31,
+        "Player": "S.A",
+        "Goals": 0,
+        "Assists": 0,
+        "Shots": 0,
+        "Saves": 5
+      },
+      {
+        "Jersey_Number": 44,
+        "Player": "K.B",
+        "Goals": 0,
+        "Assists": 0,
+        "Shots": 0,
+        "Saves": 3
+      },
+      {
+        "Jersey_Number": 32,
+        "Player": "C.C",
+        "Goals": 0,
+        "Assists": 0,
+        "Shots": 3,
+        "Saves": 0
+      },
+      {
+        "Jersey_Number": 33,
+        "Player": "L.B",
+        "Goals": 0,
+        "Assists": 0,
+        "Shots": 3,
+        "Saves": 0
+      },
+      {
+        "Jersey_Number": 35,
+        "Player": "C.S",
+        "Goals": 0,
+        "Assists": 0,
+        "Shots": 7,
+        "Saves": 0
+      },
+      {
+        "Jersey_Number": 39,
+        "Player": "H.M",
+        "Goals": 0,
+        "Assists": 0,
+        "Shots": 3,
+        "Saves": 0
+      },
+      {
+        "Jersey_Number": 42,
+        "Player": "L.O",
+        "Goals": 0,
+        "Assists": 0,
+        "Shots": 2,
+        "Saves": 0
+      },
+      {
+        "Jersey_Number": 45,
+        "Player": "S.S",
+        "Goals": 0,
+        "Assists": 0,
+        "Shots": 7,
+        "Saves": 0
+      }
+    ]
+  },
+  {
+    "gameId": 2,
+    "date": "2025-10-04",
+    "opponent": "BIFC Red",
+    "score": "1 - 1",
+    "result": "Tie",
+    "teamGoals": 1,
+    "teamShots": 27,
+    "teamSaves": 16,
+    "players": [
+      {
+        "Jersey_Number": 39,
+        "Player": "H.M",
+        "Goals": 1,
+        "Assists": 0,
+        "Shots": 3,
+        "Saves": 0
+      },
+      {
+        "Jersey_Number": 39,
+        "Player": "C.W",
+        "Goals": 0,
+        "Assists": 0,
+        "Shots": 3,
+        "Saves": 10
+      },
+      {
+        "Jersey_Number": 44,
+        "Player": "K.B",
+        "Goals": 0,
+        "Assists": 0,
+        "Shots": 0,
+        "Saves": 6
+      },
+      {
+        "Jersey_Number": 32,
+        "Player": "C.C",
+        "Goals": 0,
+        "Assists": 0,
+        "Shots": 3,
+        "Saves": 0
+      },
+      {
+        "Jersey_Number": 33,
+        "Player": "L.B",
+        "Goals": 0,
+        "Assists": 0,
+        "Shots": 7,
+        "Saves": 0
+      },
+      {
+        "Jersey_Number": 34,
+        "Player": "E.L",
+        "Goals": 0,
+        "Assists": 0,
+        "Shots": 1,
+        "Saves": 0
+      },
+      {
+        "Jersey_Number": 35,
+        "Player": "C.S",
+        "Goals": 0,
+        "Assists": 0,
+        "Shots": 1,
+        "Saves": 0
+      },
+      {
+        "Jersey_Number": 40,
+        "Player": "G.B",
+        "Goals": 0,
+        "Assists": 0,
+        "Shots": 1,
+        "Saves": 0
+      },
+      {
+        "Jersey_Number": 45,
+        "Player": "S.S",
+        "Goals": 0,
+        "Assists": 0,
+        "Shots": 8,
+        "Saves": 0
+      }
+    ]
+  },
+  {
+    "gameId": 3,
+    "date": "2025-09-27",
+    "opponent": "SK United",
+    "score": "4 - 1",
+    "result": "Win",
+    "teamGoals": 4,
+    "teamShots": 22,
+    "teamSaves": 5,
+    "players": [
+      {
+        "Jersey_Number": 35,
+        "Player": "C.S",
+        "Goals": 2,
+        "Assists": 0,
+        "Shots": 3,
+        "Saves": 0
+      },
+      {
+        "Jersey_Number": 45,
+        "Player": "S.S",
+        "Goals": 1,
+        "Assists": 1,
+        "Shots": 4,
+        "Saves": 0
+      },
+      {
+        "Jersey_Number": 39,
+        "Player": "H.M",
+        "Goals": 1,
+        "Assists": 0,
+        "Shots": 4,
+        "Saves": 0
+      },
+      {
+        "Jersey_Number": 33,
+        "Player": "L.B",
+        "Goals": 0,
+        "Assists": 1,
+        "Shots": 0,
+        "Saves": 0
+      },
+      {
+        "Jersey_Number": 34,
+        "Player": "E.L",
+        "Goals": 0,
+        "Assists": 1,
+        "Shots": 4,
+        "Saves": 0
+      },
+      {
+        "Jersey_Number": 32,
+        "Player": "C.C",
+        "Goals": 0,
+        "Assists": 0,
+        "Shots": 0,
+        "Saves": 3
+      },
+      {
+        "Jersey_Number": 31,
+        "Player": "S.A",
+        "Goals": 0,
+        "Assists": 0,
+        "Shots": 1,
+        "Saves": 2
+      },
+      {
+        "Jersey_Number": 36,
+        "Player": "C.W",
+        "Goals": 0,
+        "Assists": 0,
+        "Shots": 1,
+        "Saves": 0
+      },
+      {
+        "Jersey_Number": 40,
+        "Player": "G.B",
+        "Goals": 0,
+        "Assists": 0,
+        "Shots": 2,
+        "Saves": 0
+      },
+      {
+        "Jersey_Number": 44,
+        "Player": "K.B",
+        "Goals": 0,
+        "Assists": 0,
+        "Shots": 3,
+        "Saves": 0
+      }
+    ]
+  },
+  {
+    "gameId": 4,
+    "date": "2025-09-20",
+    "opponent": "BIFC Black",
+    "score": "5 - 2",
+    "result": "Win",
+    "teamGoals": 5,
+    "teamShots": 30,
+    "teamSaves": 10,
+    "players": [
+      {
+        "Jersey_Number": 39,
+        "Player": "H.M",
+        "Goals": 2,
+        "Assists": 0,
+        "Shots": 4,
+        "Saves": 0
+      },
+      {
+        "Jersey_Number": 45,
+        "Player": "S.S",
+        "Goals": 2,
+        "Assists": 0,
+        "Shots": 9,
+        "Saves": 0
+      },
+      {
+        "Jersey_Number": 33,
+        "Player": "L.B",
+        "Goals": 1,
+        "Assists": 0,
+        "Shots": 1,
+        "Saves": 0
+      },
+      {
+        "Jersey_Number": 31,
+        "Player": "S.A",
+        "Goals": 0,
+        "Assists": 1,
+        "Shots": 1,
+        "Saves": 5
+      },
+      {
+        "Jersey_Number": 36,
+        "Player": "C.W",
+        "Goals": 0,
+        "Assists": 1,
+        "Shots": 5,
+        "Saves": 0
+      },
+      {
+        "Jersey_Number": 40,
+        "Player": "G.B",
+        "Goals": 0,
+        "Assists": 1,
+        "Shots": 0,
+        "Saves": 0
+      },
+      {
+        "Jersey_Number": 44,
+        "Player": "K.B",
+        "Goals": 0,
+        "Assists": 0,
+        "Shots": 1,
+        "Saves": 5
+      },
+      {
+        "Jersey_Number": 34,
+        "Player": "E.L",
+        "Goals": 0,
+        "Assists": 0,
+        "Shots": 3,
+        "Saves": 0
+      },
+      {
+        "Jersey_Number": 35,
+        "Player": "C.S",
+        "Goals": 0,
+        "Assists": 0,
+        "Shots": 3,
+        "Saves": 0
+      },
+      {
+        "Jersey_Number": 42,
+        "Player": "L.O",
+        "Goals": 0,
+        "Assists": 0,
+        "Shots": 3,
+        "Saves": 0
+      }
+    ]
+  },
+  {
+    "gameId": 5,
+    "date": "2025-09-13",
+    "opponent": "BIFC Grey",
+    "score": "3 - 0",
+    "result": "Win",
+    "teamGoals": 3,
+    "teamShots": 25,
+    "teamSaves": 7,
+    "players": [
+      {
+        "Jersey_Number": 33,
+        "Player": "L.B",
+        "Goals": 1,
+        "Assists": 0,
+        "Shots": 5,
+        "Saves": 0
+      },
+      {
+        "Jersey_Number": 36,
+        "Player": "C.W",
+        "Goals": 1,
+        "Assists": 0,
+        "Shots": 0,
+        "Saves": 0
+      },
+      {
+        "Jersey_Number": 45,
+        "Player": "S.S",
+        "Goals": 1,
+        "Assists": 0,
+        "Shots": 10,
+        "Saves": 0
+      },
+      {
+        "Jersey_Number": 39,
+        "Player": "H.M",
+        "Goals": 0,
+        "Assists": 1,
+        "Shots": 3,
+        "Saves": 0
+      },
+      {
+        "Jersey_Number": 44,
+        "Player": "K.B",
+        "Goals": 0,
+        "Assists": 0,
+        "Shots": 1,
+        "Saves": 4
+      },
+      {
+        "Jersey_Number": 32,
+        "Player": "C.C",
+        "Goals": 0,
+        "Assists": 0,
+        "Shots": 0,
+        "Saves": 3
+      },
+      {
+        "Jersey_Number": 31,
+        "Player": "S.A",
+        "Goals": 0,
+        "Assists": 0,
+        "Shots": 2,
+        "Saves": 0
+      },
+      {
+        "Jersey_Number": 42,
+        "Player": "L.O",
+        "Goals": 0,
+        "Assists": 0,
+        "Shots": 4,
+        "Saves": 0
+      }
+    ]
+  },
+  {
+    "gameId": 6,
+    "date": "2025-09-06",
+    "opponent": "BIFC Black",
+    "score": "4 - 1",
+    "result": "Win",
+    "teamGoals": 4,
+    "teamShots": 45,
+    "teamSaves": 9,
+    "players": [
+      {
+        "Jersey_Number": 33,
+        "Player": "L.B",
+        "Goals": 2,
+        "Assists": 0,
+        "Shots": 5,
+        "Saves": 0
+      },
+      {
+        "Jersey_Number": 34,
+        "Player": "E.L",
+        "Goals": 1,
+        "Assists": 0,
+        "Shots": 5,
+        "Saves": 0
+      },
+      {
+        "Jersey_Number": 45,
+        "Player": "S.S",
+        "Goals": 1,
+        "Assists": 0,
+        "Shots": 10,
+        "Saves": 0
+      },
+      {
+        "Jersey_Number": 32,
+        "Player": "C.C",
+        "Goals": 0,
+        "Assists": 0,
+        "Shots": 1,
+        "Saves": 5
+      },
+      {
+        "Jersey_Number": 31,
+        "Player": "S.A",
+        "Goals": 0,
+        "Assists": 0,
+        "Shots": 0,
+        "Saves": 4
+      },
+      {
+        "Jersey_Number": 35,
+        "Player": "C.S",
+        "Goals": 0,
+        "Assists": 0,
+        "Shots": 4,
+        "Saves": 0
+      },
+      {
+        "Jersey_Number": 36,
+        "Player": "C.W",
+        "Goals": 0,
+        "Assists": 0,
+        "Shots": 6,
+        "Saves": 0
+      },
+      {
+        "Jersey_Number": 39,
+        "Player": "H.M",
+        "Goals": 0,
+        "Assists": 0,
+        "Shots": 9,
+        "Saves": 0
+      },
+      {
+        "Jersey_Number": 42,
+        "Player": "L.O",
+        "Goals": 0,
+        "Assists": 0,
+        "Shots": 4,
+        "Saves": 0
+      },
+      {
+        "Jersey_Number": 44,
+        "Player": "K.B",
+        "Goals": 0,
+        "Assists": 0,
+        "Shots": 1,
+        "Saves": 0
+      }
+    ]
+  }
+] ;</script>
+<div class="cell">
+<script>
+// Close on Escape key
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    const modal = document.getElementById('gameDetailsModal');
+    if (modal && modal.style.display === 'flex') {
+      modal.style.display = 'none';
+    }
+  }
+});
+
+// Add click handlers to game rows
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('Setting up click handlers...');
+  console.log('Game data available:', typeof gameDetailsData !== 'undefined');
+  console.log('Modal exists:', document.getElementById('gameDetailsModal') !== null);
+  console.log('Modal content exists:', document.getElementById('gameDetailsContent') !== null);
+  
+  // Find the games table - try multiple selectors
+  let table = document.querySelector('#games-table tbody');
+  if (!table) {
+    // Fallback: find any table in the games section
+    const allTables = document.querySelectorAll('table tbody');
+    console.log('Found', allTables.length, 'tables');
+    // The games table should be before the player stats table
+    if (allTables.length >= 1) {
+      table = allTables[0];
+    }
+  }
+  
+  if (table) {
+    console.log('Table found, adding click handlers');
+    const rows = table.querySelectorAll('tr');
+    console.log('Found', rows.length, 'rows');
+    
+    rows.forEach((row, index) => {
+      row.classList.add('game-row');
+      row.style.cursor = 'pointer';
+      
+      row.addEventListener('click', function() {
+        console.log('Row clicked:', index);
+        // Use the row index to find the corresponding game
+        if (typeof gameDetailsData !== 'undefined' && gameDetailsData[index]) {
+          const gameData = gameDetailsData[index];
+          console.log('Opening game:', gameData.opponent);
+          showGameDetails(gameData.gameId);
+        } else {
+          console.error('Game data not found for index:', index);
+        }
+      });
+    });
+  } else {
+    console.error('Games table not found');
+  }
+});
+
+function showGameDetails(gameId) {
+  console.log('showGameDetails called with gameId:', gameId);
+  
+  // Find the game data
+  const gameData = gameDetailsData.find(g => g.gameId === gameId);
+  
+  if (!gameData) {
+    console.error('Game not found:', gameId);
+    return;
+  }
+  
+  console.log('Found game data:', gameData.opponent);
+  
+  // Build the modal content
+  let html = `
+    <div style="text-align: center; margin-bottom: 20px;">
+      <h4>${gameData.opponent}</h4>
+      <h5 style="color: #6c757d;">${gameData.date}</h5>
+      <h3 style="margin-top: 15px;">
+        <span class="badge ${gameData.result === 'Win' ? 'bg-success' : gameData.result === 'Loss' ? 'bg-danger' : 'bg-warning'}">${gameData.result}</span>
+        <span style="margin-left: 10px;">${gameData.score}</span>
+      </h3>
+    </div>
+    
+    <div class="game-stats-summary">
+      <div class="game-stat-box">
+        <span class="game-stat-number">${gameData.teamGoals}</span>
+        <span class="game-stat-label">Team Goals</span>
+      </div>
+      <div class="game-stat-box">
+        <span class="game-stat-number">${gameData.teamShots}</span>
+        <span class="game-stat-label">Team Shots</span>
+      </div>
+      <div class="game-stat-box">
+        <span class="game-stat-number">${gameData.teamSaves}</span>
+        <span class="game-stat-label">Team Saves</span>
+      </div>
+    </div>
+    
+    <h5 style="margin-top: 25px; margin-bottom: 15px;">Player Statistics</h5>
+  `;
+  
+  if (gameData.players && gameData.players.length > 0) {
+    html += `
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Player</th>
+            <th>Goals</th>
+            <th>Assists</th>
+            <th>Shots</th>
+            <th>Saves</th>
+          </tr>
+        </thead>
+        <tbody>
+    `;
+    
+    gameData.players.forEach(player => {
+      html += `
+        <tr>
+          <td>${player.Jersey_Number}</td>
+          <td>${player.Player}</td>
+          <td>${player.Goals > 0 ? '<strong>' + player.Goals + '</strong>' : player.Goals}</td>
+          <td>${player.Assists > 0 ? '<strong>' + player.Assists + '</strong>' : player.Assists}</td>
+          <td>${player.Shots}</td>
+          <td>${player.Saves > 0 ? '<strong>' + player.Saves + '</strong>' : player.Saves}</td>
+        </tr>
+      `;
+    });
+    
+    html += `
+        </tbody>
+      </table>
+    `;
+  } else {
+    html += '<p style="text-align: center; color: #6c757d;">No player statistics recorded for this game.</p>';
+  }
+  
+  // Insert content and show custom modal
+  const contentDiv = document.getElementById('gameDetailsContent');
+  const modalDiv = document.getElementById('gameDetailsModal');
+  
+  console.log('Content div exists:', contentDiv !== null);
+  console.log('Modal div exists:', modalDiv !== null);
+  
+  if (contentDiv && modalDiv) {
+    // Add close button to the content
+    const closeBtn = '<div style="position:sticky;top:0;background:white;padding:10px;text-align:right;z-index:10000;border-bottom:2px solid #dee2e6;margin-bottom:20px;"><button onclick="document.getElementById(\'gameDetailsModal\').style.display=\'none\'" style="font-size:20px;font-weight:bold;background:#dc3545;color:white;border:none;cursor:pointer;padding:8px 20px;border-radius:5px;">✕ CLOSE</button></div>';
+    
+    contentDiv.innerHTML = closeBtn + html;
+    
+    // Force modal to display with inline styles
+    modalDiv.style.display = 'flex';
+    modalDiv.style.position = 'fixed';
+    modalDiv.style.top = '0';
+    modalDiv.style.left = '0';
+    modalDiv.style.width = '100%';
+    modalDiv.style.height = '100%';
+    modalDiv.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+    modalDiv.style.zIndex = '9999';
+    modalDiv.style.alignItems = 'flex-start';
+    modalDiv.style.justifyContent = 'center';
+    modalDiv.style.opacity = '1';
+    modalDiv.style.visibility = 'visible';
+    modalDiv.style.padding = '40px 20px';
+    modalDiv.style.overflowY = 'auto';
+    
+    modalDiv.classList.add('active');
+  } else {
+    console.error('Could not find modal elements');
+  }
+}
+</script>
 </div>
 </section>
 <section id="player-statistics" class="level2">
@@ -287,96 +1124,122 @@ ul.task-list li input[type="checkbox"] {
  </thead>
 <tbody>
   <tr>
-   <td style="text-align:right;"> 33 </td>
-   <td style="text-align:left;"> L.B </td>
-   <td style="text-align:right;font-weight: bold;"> 3 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 10 </td>
+   <td style="text-align:right;"> 45 </td>
+   <td style="text-align:left;"> S.S </td>
+   <td style="text-align:right;font-weight: bold;"> 5 </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> 48 </td>
    <td style="text-align:right;"> 0 </td>
   </tr>
   <tr>
-   <td style="text-align:right;"> 45 </td>
-   <td style="text-align:left;"> S.S </td>
+   <td style="text-align:right;"> 33 </td>
+   <td style="text-align:left;"> L.B </td>
+   <td style="text-align:right;font-weight: bold;"> 4 </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> 21 </td>
+   <td style="text-align:right;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 39 </td>
+   <td style="text-align:left;"> H.M </td>
+   <td style="text-align:right;font-weight: bold;"> 4 </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> 26 </td>
+   <td style="text-align:right;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 35 </td>
+   <td style="text-align:left;"> C.S </td>
    <td style="text-align:right;"> 2 </td>
    <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 20 </td>
+   <td style="text-align:right;"> 18 </td>
    <td style="text-align:right;"> 0 </td>
   </tr>
   <tr>
    <td style="text-align:right;"> 34 </td>
    <td style="text-align:left;"> E.L </td>
    <td style="text-align:right;"> 1 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 5 </td>
+   <td style="text-align:right;font-weight: bold;"> 2 </td>
+   <td style="text-align:right;"> 18 </td>
    <td style="text-align:right;"> 0 </td>
   </tr>
   <tr>
    <td style="text-align:right;"> 36 </td>
    <td style="text-align:left;"> C.W </td>
    <td style="text-align:right;"> 1 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 6 </td>
-   <td style="text-align:right;"> 0 </td>
-  </tr>
-  <tr>
-   <td style="text-align:right;"> 39 </td>
-   <td style="text-align:left;"> H.M </td>
-   <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 1 </td>
    <td style="text-align:right;"> 12 </td>
    <td style="text-align:right;"> 0 </td>
   </tr>
   <tr>
-   <td style="text-align:right;"> 32 </td>
-   <td style="text-align:left;"> C.C </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 39 </td>
+   <td style="text-align:left;"> C.W </td>
    <td style="text-align:right;"> 1 </td>
-   <td style="text-align:right;"> 8 </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 6 </td>
+   <td style="text-align:right;"> 10 </td>
   </tr>
   <tr>
    <td style="text-align:right;"> 31 </td>
    <td style="text-align:left;"> S.A </td>
    <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 2 </td>
+   <td style="text-align:right;"> 1 </td>
    <td style="text-align:right;"> 4 </td>
+   <td style="text-align:right;font-weight: bold;"> 16 </td>
+  </tr>
+  <tr>
+   <td style="text-align:right;"> 40 </td>
+   <td style="text-align:left;"> G.B </td>
+   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 1 </td>
+   <td style="text-align:right;"> 3 </td>
+   <td style="text-align:right;"> 0 </td>
   </tr>
   <tr>
    <td style="text-align:right;"> 44 </td>
    <td style="text-align:left;"> K.B </td>
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 2 </td>
-   <td style="text-align:right;"> 4 </td>
+   <td style="text-align:right;"> 6 </td>
+   <td style="text-align:right;font-weight: bold;"> 18 </td>
   </tr>
   <tr>
-   <td style="text-align:right;"> 35 </td>
-   <td style="text-align:left;"> C.S </td>
+   <td style="text-align:right;"> 32 </td>
+   <td style="text-align:left;"> C.C </td>
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 4 </td>
-   <td style="text-align:right;"> 0 </td>
-  </tr>
-  <tr>
-   <td style="text-align:right;"> 40 </td>
-   <td style="text-align:left;"> G.B </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 0 </td>
+   <td style="text-align:right;"> 7 </td>
+   <td style="text-align:right;font-weight: bold;"> 11 </td>
   </tr>
   <tr>
    <td style="text-align:right;"> 42 </td>
    <td style="text-align:left;"> L.O </td>
    <td style="text-align:right;"> 0 </td>
    <td style="text-align:right;"> 0 </td>
-   <td style="text-align:right;"> 8 </td>
+   <td style="text-align:right;"> 13 </td>
    <td style="text-align:right;"> 0 </td>
   </tr>
 </tbody>
 </table>
 
+</div>
+</div>
+<div id="gameDetailsModal" class="modal fade" tabindex="-1">
+<div class="modal-dialog modal-lg">
+<div class="modal-content">
+<div class="modal-header">
+<h5 class="modal-title anchored">
+Game Details
+</h5>
+<button type="button" class="btn-close" data-bs-dismiss="modal">
+</button>
+</div>
+<div class="modal-body">
+<div id="gameDetailsContent">
+
+</div>
+</div>
+</div>
 </div>
 </div>
 </section>

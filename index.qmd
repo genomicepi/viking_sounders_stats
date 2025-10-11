@@ -7,8 +7,10 @@ format:
     toc: false
     page-layout: full
     html-table-processing: none
-    include-in-header: |
-      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    include-in-header: 
+      text: |
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 execute:
   echo: false
   warning: false
@@ -122,6 +124,108 @@ execute:
   background-color: #f8f9fa;
 }
 
+/* Clickable game rows */
+.game-row {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.game-row:hover {
+  background-color: #e9ecef !important;
+}
+
+/* Game detail modal styling */
+.game-stats-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  margin: 20px 0;
+}
+
+.game-stat-box {
+  text-align: center;
+  padding: 15px;
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+}
+
+.game-stat-number {
+  font-size: 1.8em;
+  font-weight: bold;
+  color: #495057;
+  display: block;
+}
+
+.game-stat-label {
+  font-size: 0.85em;
+  color: #6c757d;
+  text-transform: uppercase;
+}
+
+/* Custom modal styling */
+.custom-modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 9998;
+  overflow-y: auto;
+}
+
+.custom-modal-overlay.active {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+.custom-modal-content {
+  background: white;
+  border-radius: 8px;
+  max-width: 900px;
+  width: 100%;
+  position: relative;
+  z-index: 9999;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  margin: auto;
+}
+
+.custom-modal-header {
+  padding: 20px;
+  border-bottom: 1px solid #dee2e6;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.custom-modal-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+}
+
+.custom-modal-close:hover {
+  background: #f8f9fa;
+}
+
+.custom-modal-body {
+  padding: 20px;
+  max-height: calc(90vh - 80px);
+  overflow-y: auto;
+}
+
 /* Update notice */
 .update-info {
   text-align: center;
@@ -146,6 +250,10 @@ execute:
   .season-summary, .performers-grid {
     grid-template-columns: 1fr 1fr;
   }
+  
+  .game-stats-summary {
+    grid-template-columns: 1fr;
+  }
 }
 ```
 
@@ -158,6 +266,7 @@ library(dplyr)
 library(stringr)
 library(knitr)
 library(kableExtra)
+library(jsonlite)
 
 # URL to your published Google Sheet CSV
 csv_url <- "https://docs.google.com/spreadsheets/d/e/2PACX-1vTXyx3iRXjeOoTxtgtJxOqrfYwcyuvXO8Cxg1hyjzwHISViC-V6X3T45tnEvID_D8aXgQW8ucbK-l5I/pub?gid=0&single=true&output=csv"
@@ -216,7 +325,8 @@ games_summary <- team_data %>%
     Season_Type = case_when(
       str_detect(Type, "Fall Season") ~ "Regular Season",
       TRUE ~ "Tournament"
-    )
+    ),
+    GameID = row_number()
   )
 
 # Separate Fall Season and Tournament games
@@ -261,6 +371,42 @@ top_assists <- player_stats %>%
 top_saves <- player_stats %>% 
   filter(Saves == max(Saves)) %>% 
   slice(1)
+
+# Prepare game details data for JavaScript
+game_details_list <- lapply(1:nrow(fall_season_games), function(i) {
+  game <- fall_season_games[i, ]
+  
+  # Get player stats for this specific game
+  game_players <- team_data %>%
+    filter(Date == game$Date, Opponent == game$Opponent) %>%
+    group_by(Jersey_Number, Player) %>%
+    summarise(
+      Goals = sum(Goals, na.rm = TRUE),
+      Assists = sum(Assists, na.rm = TRUE),
+      Shots = sum(Shots, na.rm = TRUE),
+      Saves = sum(Saves, na.rm = TRUE),
+      .groups = 'drop'
+    ) %>%
+    filter(Goals > 0 | Assists > 0 | Shots > 0 | Saves > 0) %>%
+    arrange(desc(Goals), desc(Assists), desc(Saves))
+  
+  # Calculate team totals for this game
+  team_goals <- sum(game_players$Goals, na.rm = TRUE)
+  team_shots <- sum(game_players$Shots, na.rm = TRUE)
+  team_saves <- sum(game_players$Saves, na.rm = TRUE)
+  
+  list(
+    gameId = game$GameID,
+    date = as.character(game$Date),
+    opponent = game$Opponent,
+    score = paste(game$Final_Score_Us, "-", game$Final_Score_Them),
+    result = game$Result,
+    teamGoals = team_goals,
+    teamShots = team_shots,
+    teamSaves = team_saves,
+    players = game_players
+  )
+})
 ```
 
 ::: {.update-info}
@@ -311,24 +457,33 @@ Goals Against
 
 
 ## 📅 Fall Season Games
+<p style="text-align: center; color: #6c757d; font-size: 0.9em; margin-bottom: 10px;">
+  <em>Click on any game to view detailed stats</em>
+</p>
+
 ```{r fall-season-table}
 #| echo: false
 
 if (nrow(fall_season_games) > 0) {
-  # Clean fall season table without any HTML
+  # Clean fall season table
   clean_fall_table <- fall_season_games %>%
     mutate(
       Score = paste(Final_Score_Us, "-", Final_Score_Them),
-      # Create fresh Result from scores to avoid any HTML issues
       Clean_Result = case_when(
         Final_Score_Us > Final_Score_Them ~ "Win",
         Final_Score_Us < Final_Score_Them ~ "Loss",
         TRUE ~ "Tie"
       )
     ) %>%
-    select(Date, Opponent, Clean_Result, Score)
+    select(Date, Opponent, Clean_Result, Score, GameID)
   
-  kable(clean_fall_table, col.names = c("Date", "Opponent", "Result", "Score")) %>%
+  # Create the table
+  clean_fall_table %>%
+    select(-GameID) %>%
+    kable(
+      col.names = c("Date", "Opponent", "Result", "Score"),
+      table.attr = "class='table table-hover custom-table' id='games-table'"
+    ) %>%
     kable_styling(bootstrap_options = c("hover", "striped")) %>%
     column_spec(3, 
       background = case_when(
@@ -342,8 +497,194 @@ if (nrow(fall_season_games) > 0) {
         TRUE ~ "#856404"
       ),
       bold = TRUE)
+  
 } else {
   cat("*No Fall Season games recorded yet.*")
+}
+```
+
+```{r inject-game-data}
+#| echo: false
+#| results: asis
+
+# Convert game details to JSON for JavaScript
+game_data_json <- toJSON(game_details_list, auto_unbox = TRUE, pretty = TRUE)
+
+cat('<script type="text/javascript">')
+cat('const gameDetailsData = ', game_data_json, ';')
+cat('</script>')
+```
+
+```{js}
+#| echo: false
+
+// Close on Escape key
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    const modal = document.getElementById('gameDetailsModal');
+    if (modal && modal.style.display === 'flex') {
+      modal.style.display = 'none';
+    }
+  }
+});
+
+// Add click handlers to game rows
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('Setting up click handlers...');
+  console.log('Game data available:', typeof gameDetailsData !== 'undefined');
+  console.log('Modal exists:', document.getElementById('gameDetailsModal') !== null);
+  console.log('Modal content exists:', document.getElementById('gameDetailsContent') !== null);
+  
+  // Find the games table - try multiple selectors
+  let table = document.querySelector('#games-table tbody');
+  if (!table) {
+    // Fallback: find any table in the games section
+    const allTables = document.querySelectorAll('table tbody');
+    console.log('Found', allTables.length, 'tables');
+    // The games table should be before the player stats table
+    if (allTables.length >= 1) {
+      table = allTables[0];
+    }
+  }
+  
+  if (table) {
+    console.log('Table found, adding click handlers');
+    const rows = table.querySelectorAll('tr');
+    console.log('Found', rows.length, 'rows');
+    
+    rows.forEach((row, index) => {
+      row.classList.add('game-row');
+      row.style.cursor = 'pointer';
+      
+      row.addEventListener('click', function() {
+        console.log('Row clicked:', index);
+        // Use the row index to find the corresponding game
+        if (typeof gameDetailsData !== 'undefined' && gameDetailsData[index]) {
+          const gameData = gameDetailsData[index];
+          console.log('Opening game:', gameData.opponent);
+          showGameDetails(gameData.gameId);
+        } else {
+          console.error('Game data not found for index:', index);
+        }
+      });
+    });
+  } else {
+    console.error('Games table not found');
+  }
+});
+
+function showGameDetails(gameId) {
+  console.log('showGameDetails called with gameId:', gameId);
+  
+  // Find the game data
+  const gameData = gameDetailsData.find(g => g.gameId === gameId);
+  
+  if (!gameData) {
+    console.error('Game not found:', gameId);
+    return;
+  }
+  
+  console.log('Found game data:', gameData.opponent);
+  
+  // Build the modal content
+  let html = `
+    <div style="text-align: center; margin-bottom: 20px;">
+      <h4>${gameData.opponent}</h4>
+      <h5 style="color: #6c757d;">${gameData.date}</h5>
+      <h3 style="margin-top: 15px;">
+        <span class="badge ${gameData.result === 'Win' ? 'bg-success' : gameData.result === 'Loss' ? 'bg-danger' : 'bg-warning'}">${gameData.result}</span>
+        <span style="margin-left: 10px;">${gameData.score}</span>
+      </h3>
+    </div>
+    
+    <div class="game-stats-summary">
+      <div class="game-stat-box">
+        <span class="game-stat-number">${gameData.teamGoals}</span>
+        <span class="game-stat-label">Team Goals</span>
+      </div>
+      <div class="game-stat-box">
+        <span class="game-stat-number">${gameData.teamShots}</span>
+        <span class="game-stat-label">Team Shots</span>
+      </div>
+      <div class="game-stat-box">
+        <span class="game-stat-number">${gameData.teamSaves}</span>
+        <span class="game-stat-label">Team Saves</span>
+      </div>
+    </div>
+    
+    <h5 style="margin-top: 25px; margin-bottom: 15px;">Player Statistics</h5>
+  `;
+  
+  if (gameData.players && gameData.players.length > 0) {
+    html += `
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Player</th>
+            <th>Goals</th>
+            <th>Assists</th>
+            <th>Shots</th>
+            <th>Saves</th>
+          </tr>
+        </thead>
+        <tbody>
+    `;
+    
+    gameData.players.forEach(player => {
+      html += `
+        <tr>
+          <td>${player.Jersey_Number}</td>
+          <td>${player.Player}</td>
+          <td>${player.Goals > 0 ? '<strong>' + player.Goals + '</strong>' : player.Goals}</td>
+          <td>${player.Assists > 0 ? '<strong>' + player.Assists + '</strong>' : player.Assists}</td>
+          <td>${player.Shots}</td>
+          <td>${player.Saves > 0 ? '<strong>' + player.Saves + '</strong>' : player.Saves}</td>
+        </tr>
+      `;
+    });
+    
+    html += `
+        </tbody>
+      </table>
+    `;
+  } else {
+    html += '<p style="text-align: center; color: #6c757d;">No player statistics recorded for this game.</p>';
+  }
+  
+  // Insert content and show custom modal
+  const contentDiv = document.getElementById('gameDetailsContent');
+  const modalDiv = document.getElementById('gameDetailsModal');
+  
+  console.log('Content div exists:', contentDiv !== null);
+  console.log('Modal div exists:', modalDiv !== null);
+  
+  if (contentDiv && modalDiv) {
+    // Add close button to the content
+    const closeBtn = '<div style="position:sticky;top:0;background:white;padding:10px;text-align:right;z-index:10000;border-bottom:2px solid #dee2e6;margin-bottom:20px;"><button onclick="document.getElementById(\'gameDetailsModal\').style.display=\'none\'" style="font-size:20px;font-weight:bold;background:#dc3545;color:white;border:none;cursor:pointer;padding:8px 20px;border-radius:5px;">✕ CLOSE</button></div>';
+    
+    contentDiv.innerHTML = closeBtn + html;
+    
+    // Force modal to display with inline styles
+    modalDiv.style.display = 'flex';
+    modalDiv.style.position = 'fixed';
+    modalDiv.style.top = '0';
+    modalDiv.style.left = '0';
+    modalDiv.style.width = '100%';
+    modalDiv.style.height = '100%';
+    modalDiv.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+    modalDiv.style.zIndex = '9999';
+    modalDiv.style.alignItems = 'flex-start';
+    modalDiv.style.justifyContent = 'center';
+    modalDiv.style.opacity = '1';
+    modalDiv.style.visibility = 'visible';
+    modalDiv.style.padding = '40px 20px';
+    modalDiv.style.overflowY = 'auto';
+    
+    modalDiv.classList.add('active');
+  } else {
+    console.error('Could not find modal elements');
+  }
 }
 ```
 
@@ -371,4 +712,6 @@ player_stats %>%
 if (is.null(read_team_data())) {
   cat('<div style="background: #f8d7da; color: #721c24; padding: 15px; border-radius: 8px; margin: 20px 0; border: 1px solid #f1aeb5; text-align: center;"><strong>📋 Using Sample Data</strong> - Could not connect to live Google Sheet. <a href="https://docs.google.com/spreadsheets/d/1dqo2JAqRDvqtftlotC-uywJQRYlk--Yr3Azm6ZctpHQ/edit" target="_blank">View Live Sheet</a></div>')
 }
+
+cat('<div class="modal fade" id="gameDetailsModal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">Game Details</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div id="gameDetailsContent"></div></div></div></div></div>')
 ```
