@@ -37,6 +37,33 @@ execute:
   transition: box-shadow 0.2s ease;
 }
 
+.stat-box.win-box {
+  background: #d4edda;
+  border: 1px solid #c3e6cb;
+}
+
+.stat-box.win-box .stat-number {
+  color: #155724;
+}
+
+.stat-box.tie-box {
+  background: #fff3cd;
+  border: 1px solid #ffeaa7;
+}
+
+.stat-box.tie-box .stat-number {
+  color: #856404;
+}
+
+.stat-box.loss-box {
+  background: #f8d7da;
+  border: 1px solid #f1aeb5;
+}
+
+.stat-box.loss-box .stat-number {
+  color: #721c24;
+}
+
 .stat-box:hover {
   box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
@@ -351,6 +378,8 @@ player_stats <- team_data %>%
 # Calculate statistics
 fall_games_count <- nrow(fall_season_games)
 fall_wins <- sum(fall_season_games$Result == "Win")
+fall_losses <- sum(fall_season_games$Result == "Loss")
+fall_ties <- sum(fall_season_games$Result == "Tie")
 fall_goals <- sum(fall_season_games$Final_Score_Us)
 fall_goals_against <- sum(fall_season_games$Final_Score_Them)
 
@@ -418,21 +447,30 @@ game_details_list <- lapply(1:nrow(fall_season_games), function(i) {
 ## 🏆 Fall Season Overview
 
 ::: {.season-summary}
-::: {.stat-box}
-::: {.stat-number}
-`r fall_games_count`
-:::
-::: {.stat-label}
-Games
-:::
-:::
-
-::: {.stat-box}
+::: {.stat-box .win-box}
 ::: {.stat-number}
 `r fall_wins`
 :::
 ::: {.stat-label}
 Wins
+:::
+:::
+
+::: {.stat-box .tie-box}
+::: {.stat-number}
+`r fall_ties`
+:::
+::: {.stat-label}
+Ties
+:::
+:::
+
+::: {.stat-box .loss-box}
+::: {.stat-number}
+`r fall_losses`
+:::
+::: {.stat-label}
+Losses
 :::
 :::
 
@@ -442,15 +480,6 @@ Wins
 :::
 ::: {.stat-label}
 Goals
-:::
-:::
-
-::: {.stat-box}
-::: {.stat-number}
-`r fall_goals_against`
-:::
-::: {.stat-label}
-Goals Against
 :::
 :::
 :::
@@ -713,5 +742,5 @@ if (is.null(read_team_data())) {
   cat('<div style="background: #f8d7da; color: #721c24; padding: 15px; border-radius: 8px; margin: 20px 0; border: 1px solid #f1aeb5; text-align: center;"><strong>📋 Using Sample Data</strong> - Could not connect to live Google Sheet. <a href="https://docs.google.com/spreadsheets/d/1dqo2JAqRDvqtftlotC-uywJQRYlk--Yr3Azm6ZctpHQ/edit" target="_blank">View Live Sheet</a></div>')
 }
 
-cat('<div class="modal fade" id="gameDetailsModal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">Game Details</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div id="gameDetailsContent"></div></div></div></div></div>')
+cat('<div class="modal fade" id="gameDetailsModal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><h5 class="modal-title">Game Details</h5></div><div class="modal-body"><div id="gameDetailsContent"></div></div></div></div></div>')
 ```
